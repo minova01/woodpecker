@@ -53,6 +53,7 @@ type PipelineBuilder struct {
 	ListOnly bool
 }
 
+// 检查解析yaml入口，检查语法格式
 func (b *PipelineBuilder) Build() (items []*Item, errorsAndWarnings error) {
 	b.Yamls = SortYamlFilesByName(b.Yamls)
 
@@ -173,7 +174,7 @@ func (b *PipelineBuilder) genItemForWorkflow(workflow *Workflow, axis matrix.Axi
 		log.Debug().Str("pipeline", workflow.Name).Msg(
 			"pipeline config could not be parsed",
 		)
-		return nil, multierr.Append(errorsAndWarnings, err)
+		return nil, multierr.Append(errorsAndWarnings, err) // 解析通过转换成内部的一些配置
 	}
 
 	var ir *backend_types.Config

@@ -82,7 +82,7 @@ func PostHook(c *gin.Context) {
 	//
 
 	var repo *model.Repo
-
+	// 校验
 	_, err := token.ParseRequest([]token.Type{token.HookToken}, c.Request, func(t *token.Token) (string, error) {
 		var err error
 		repo, err = getRepoFromToken(_store, t)
@@ -105,7 +105,7 @@ func PostHook(c *gin.Context) {
 		c.String(http.StatusBadRequest, msg)
 		return
 	}
-
+	// 确定驱动平台
 	_forge, err := server.Config.Services.Manager.ForgeFromRepo(repo)
 	if err != nil {
 		log.Error().Err(err).Int64("repo-id", repo.ID).Msgf("Cannot get forge with id: %d", repo.ForgeID)
@@ -158,7 +158,7 @@ func PostHook(c *gin.Context) {
 	//
 	// 4. Check if the repo is active and has an owner
 	//
-
+	// 检查仓库是否允许ci
 	if !repo.IsActive {
 		log.Debug().Msgf("ignoring hook: repo %s is inactive", repoFromForge.FullName)
 		c.Status(http.StatusNoContent)
@@ -208,7 +208,7 @@ func PostHook(c *gin.Context) {
 		return
 	}
 
-	//
+	// 构建pipline
 	// 6. Finally create a pipeline
 	//
 	// Pipeline creation can be slow (forge round-trips, config fetching). To
@@ -221,7 +221,7 @@ func PostHook(c *gin.Context) {
 
 	done := make(chan struct{})
 	var pl *model.Pipeline
-
+	//为了避免 GitHub 或 GitLab 等待过久后重试 Webhook，系统只同步等待 WebhookSyncTimeout；超时后返回 202，Pipeline 在后台继续创建。后台处理最2分钟
 	go func() {
 		defer cancel()
 		pl, err = pipeline.Create(bgCtx, _store, repo, pipelineFromForge)

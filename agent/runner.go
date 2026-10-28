@@ -76,6 +76,7 @@ func GetShutdownContext() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), shutdownTimeout)
 }
 
+//  从 Server 获取一个 Workflow。这个 Workflow 已经包含 clone 步骤、用户配置的编译步骤、环境变量、Secret、镜像和工作目录等信息
 // TODO: refactor this big function into subfunctions in it's own subpackage
 
 // Run executes a workflow using a backend, tracks its state and reports the state back to the server.
@@ -188,7 +189,7 @@ func (r *Runner) Run(runnerCtx context.Context) error {
 			step.Environment["CI_AGENT_LABELS"] = formatAgentLabels(r.filter.Labels)
 		}
 	}
-
+	// 拿到任务，进行真正的执行，执行过程中会不断的向 Server 汇报状态，直到执行完成
 	// Run pipeline
 	err = pipeline_runtime.New(
 		workflow.Config,

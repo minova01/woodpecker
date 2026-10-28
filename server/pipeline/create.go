@@ -31,7 +31,7 @@ import (
 	"go.woodpecker-ci.org/woodpecker/v3/version"
 )
 
-// Create a new pipeline and start it.
+// Create a new pipeline and start it. 过滤事件、写数据库、读取 YAML、生成 Workflow、更新状态和启动调度
 func Create(ctx context.Context, _store store.Store, repo *model.Repo, pipeline *model.Pipeline) (*model.Pipeline, error) {
 	repoUser, err := _store.GetUser(repo.UserID)
 	if err != nil {
@@ -39,7 +39,7 @@ func Create(ctx context.Context, _store store.Store, repo *model.Repo, pipeline 
 		log.Error().Err(err).Str("repo", repo.FullName).Msg(msg)
 		return nil, errors.New(msg)
 	}
-
+	// 检查提交信息是否要求跳过ci
 	if constraint.IsSkipCommitMessage(metadata.Event(pipeline.Event), pipeline.Message) {
 		ref := pipeline.Commit
 		if len(ref) == 0 {
@@ -75,7 +75,7 @@ func Create(ctx context.Context, _store store.Store, repo *model.Repo, pipeline 
 
 	// fetch the pipeline file from the forge
 	configService := server.Config.Services.Manager.ConfigServiceFromRepo(repo)
-	forgeYamlConfigs, configFetchErr := configService.Fetch(ctx, _forge, repoUser, repo, pipeline, nil, false)
+	forgeYamlConfigs, configFetchErr := configService.Fetch(ctx, _forge, repoUser, repo, pipeline, nil, false) // 先获取流水线配置，定义了怎么编译检查
 	switch {
 	case errors.Is(configFetchErr, &forge_types.ErrConfigNotFound{}):
 		log.Debug().Str("repo", repo.FullName).Err(configFetchErr).Msgf("cannot find config '%s' in '%s' with user: '%s'", repo.Config, pipeline.Ref, repoUser.Login)
@@ -110,7 +110,7 @@ func Create(ctx context.Context, _store store.Store, repo *model.Repo, pipeline 
 		log.Error().Err(err).Msg(msg)
 		return nil, errors.New(msg)
 	}
-
+	// yaml解析生产workflow
 	currentPipeline, pipelineItems, parseErr, err := createPipelineItems(ctx, _forge, _store, pipeline, repoUser, repo, forgeYamlConfigs, nil, false)
 	*pipeline = *currentPipeline
 	if handleParseErrors(pipeline, parseErr) {

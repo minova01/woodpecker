@@ -28,6 +28,7 @@ import (
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/state"
 )
 
+// 单个step入口 统一执行 clone、编译、测试等所有步骤
 // executeStep is the single entry point called per step from runStage.
 // It checks whether the step should be skipped, emits a "started" trace,
 // sets up drone-compat env vars, then hands off to blocking or detached execution.

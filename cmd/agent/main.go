@@ -28,6 +28,7 @@ import (
 	"go.woodpecker-ci.org/woodpecker/v3/shared/utils"
 )
 
+// 不同部署方式注册
 var backends = []backend_types.Backend{
 	kubernetes.New(),
 	docker.New(),

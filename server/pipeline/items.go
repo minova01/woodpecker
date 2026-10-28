@@ -182,6 +182,7 @@ func handleParseErrors(pipeline *model.Pipeline, parseErr error) (blocking bool)
 	return false
 }
 
+// yaml交给PipelineBuilder处理
 // The createPipelineItems parses the pipeline config and persists the resulting
 // workflows. It is the shared core of Create, Approve, and Restart.
 //

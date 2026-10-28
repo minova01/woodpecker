@@ -29,6 +29,7 @@ import (
 	"go.woodpecker-ci.org/woodpecker/v3/pipeline/state"
 )
 
+// 任务真正的执行入口，执行所有的stage，并在退出时清理工作流。runnerCtx必须比工作流取消的生命周期长，以便清理仍然可以访问后端（例如停止Docker容器）
 // Run starts the workflow, executes all stages sequentially, and tears down the
 // workflow on exit. The runnerCtx must outlive workflow cancellation so that cleanup
 // can still reach the backend (e.g. stopping Docker containers).
@@ -55,12 +56,12 @@ func (r *Runtime) Run(runnerCtx context.Context) error {
 	defer destroyWorkflowFunc()
 
 	r.started = time.Now().Unix()
-
+	// 本次执行的隔离环境
 	if err := r.engine.SetupWorkflow(r.ctx, r.spec, r.taskUUID); err != nil { //nolint:contextcheck
 		r.traceWorkflowSetupError(err)
 		return err
 	}
-
+	// 按stage顺序执行
 	for _, stage := range r.spec.Stages {
 		stageChan := r.runStage(runnerCtx, stage.Steps)
 		select {

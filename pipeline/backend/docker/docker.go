@@ -156,7 +156,7 @@ func (e *docker) Load(ctx context.Context) (*backend_types.BackendInfo, error) {
 
 func (e *docker) SetupWorkflow(ctx context.Context, conf *backend_types.Config, taskUUID string) error {
 	log.Trace().Str("taskUUID", taskUUID).Msg("create workflow environment")
-
+	// 创建docker volume，是workflow的共享空间
 	_, err := e.client.VolumeCreate(ctx, client.VolumeCreateOptions{
 		Name:   conf.Volume,
 		Driver: volumeDriver,
@@ -176,6 +176,7 @@ func (e *docker) SetupWorkflow(ctx context.Context, conf *backend_types.Config, 
 	return err
 }
 
+// 容器启动
 func (e *docker) StartStep(ctx context.Context, step *backend_types.Step, taskUUID string) error {
 	options, err := parseBackendOptions(step)
 	if err != nil {
@@ -226,7 +227,7 @@ func (e *docker) StartStep(ctx context.Context, step *backend_types.Step, taskUU
 		Config:     config,
 		HostConfig: hostConfig,
 		Name:       containerName,
-	})
+	}) // 容器创建启动
 	if errdefs.IsNotFound(err) {
 		// automatically pull and try to re-create the image if the
 		// failure is caused because the image does not exist.
@@ -279,6 +280,7 @@ func (e *docker) StartStep(ctx context.Context, step *backend_types.Step, taskUU
 	return err
 }
 
+// 等待结果结束，出码不是0，后续的步骤不会在这里执行
 func (e *docker) WaitStep(ctx context.Context, step *backend_types.Step, taskUUID string) (*backend_types.State, error) {
 	log := log.Logger.With().Str("taskUUID", taskUUID).Str("stepUUID", step.UUID).Logger()
 	log.Trace().Msgf("wait for step %s", step.Name)

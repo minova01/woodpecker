@@ -180,7 +180,7 @@ func (c *Compiler) createProcess(container *yaml_types.Container, workflow *yaml
 		WorkspaceBase:  workspaceBase,
 		Environment:    environment,
 		SecretMapping:  secretMapping,
-		Commands:       container.Commands,
+		Commands:       container.Commands, // 命令解析后保存在这里
 		Entrypoint:     container.Entrypoint,
 		ExtraHosts:     extraHosts,
 		Volumes:        volumes,

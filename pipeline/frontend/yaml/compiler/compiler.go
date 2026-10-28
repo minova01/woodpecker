@@ -155,7 +155,7 @@ func (c *Compiler) Compile(conf *yaml_types.Workflow) (*backend_types.Config, er
 	if len(conf.Workspace.Path) != 0 {
 		c.workspacePath = path.Clean(conf.Workspace.Path)
 	}
-
+	// 生成一个结构化的 Clone Step
 	// add default clone step
 	if !c.local && len(conf.Clone.ContainerList) == 0 && !conf.SkipClone && len(c.defaultClonePlugin) != 0 {
 		cloneSettings := map[string]any{"depth": "0"}

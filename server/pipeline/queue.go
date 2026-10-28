@@ -66,7 +66,7 @@ func pipelineTasks(repo *model.Repo, org *model.Org, activePipeline *model.Pipel
 				task.ConcurrencyGroup = fmt.Sprintf("%d//%s", repo.ID, item.ConcurrencyGroup)
 			}
 		}
-
+		// 相应的步骤放进task
 		task.Data, err = json.Marshal(rpc.Workflow{
 			ID:      fmt.Sprint(item.Workflow.ID),
 			Config:  item.Config,
@@ -75,7 +75,7 @@ func pipelineTasks(repo *model.Repo, org *model.Org, activePipeline *model.Pipel
 		if err != nil {
 			return nil, err
 		}
-
+		// 加入任务队列，等待调度器领取
 		tasks = append(tasks, task)
 	}
 	return tasks, nil

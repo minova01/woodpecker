@@ -56,6 +56,7 @@ func start(ctx context.Context, forge forge.Forge, store store.Store, activePipe
 	return activePipeline, nil
 }
 
+// 发布pipeline状态到前端
 func publishPipeline(ctx context.Context, forge forge.Forge, pipeline *model.Pipeline, repo *model.Repo, repoUser *model.User) {
 	if err := server.Config.Services.Scheduler.PublishPipelineEvent(ctx, repo, pipeline); err != nil {
 		log.Error().Err(err).Msg("could not push pipeline status change to pubsub provider")

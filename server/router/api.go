@@ -254,7 +254,7 @@ func apiRoutes(e *gin.RouterGroup) {
 		}
 
 		apiBase.GET("/signature/public-key", api.GetSignaturePublicKey)
-
+		// 接收代码托管平台发送的请求
 		apiBase.POST("/hook", api.PostHook)
 
 		stream := apiBase.Group("/stream")
